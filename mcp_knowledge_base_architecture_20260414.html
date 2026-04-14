@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>Signsbeat · Product Manual</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #f7f7f5;
+      --surface:      #ffffff;
+      --border:       #e8e6dc;
+      --border-light: #f0efeb;
+      --text:         #37352f;
+      --text-muted:   #9b9a97;
+      --text-light:   #c4c3bf;
+      --active-bg:    #efefed;
+      --sidebar-w:    240px;
+      --topbar-h:     50px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      height: var(--topbar-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 20px; gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .topbar-logo {
+      width: 26px; height: 26px;
+      background: #37352f; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 11px; font-weight: 700;
+      flex-shrink: 0; letter-spacing: -0.02em;
+    }
+
+    .topbar-name  { font-size: 14px; font-weight: 600; color: var(--text); }
+    .topbar-sep   { color: var(--text-light); font-size: 14px; }
+    .topbar-section { font-size: 13px; color: var(--text-muted); }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .topbar-date  { font-size: 12px; color: var(--text-light); }
+
+    /* ── Layout ── */
+    .body-wrap { flex: 1; display: flex; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      flex-shrink: 0; overflow-y: auto;
+    }
+
+    .sidebar-section { padding: 18px 10px 6px; }
+
+    .sidebar-label {
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--text-light);
+      padding: 0 8px; margin-bottom: 4px;
+    }
+
+    .sidebar-item {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 10px; border-radius: 5px;
+      cursor: pointer; font-size: 13px;
+      color: var(--text-muted);
+      transition: background 0.1s, color 0.1s;
+      user-select: none;
+    }
+
+    .sidebar-item:hover { background: var(--bg); color: var(--text); }
+
+    .sidebar-item.active {
+      background: var(--active-bg);
+      color: var(--text); font-weight: 500;
+    }
+
+    .sidebar-item-icon {
+      font-size: 13px; flex-shrink: 0;
+      width: 18px; text-align: center; opacity: 0.65;
+    }
+
+    .sidebar-item.active .sidebar-item-icon { opacity: 1; }
+
+    .sidebar-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      flex-shrink: 0; margin-left: auto;
+    }
+
+    .dot-blue   { background: #91b4f0; }
+    .dot-green  { background: #7fc99a; }
+    .dot-purple { background: #b09de0; }
+    .dot-orange { background: #e0b07c; }
+    .dot-teal   { background: #6bccc3; }
+    .dot-gray   { background: #c4c3bf; }
+
+    .sidebar-divider { height: 1px; background: var(--border-light); margin: 6px 10px; }
+
+    .sidebar-footer {
+      margin-top: auto; padding: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11px; color: var(--text-light); line-height: 1.65;
+    }
+
+    .sidebar-footer strong { color: var(--text-muted); display: block; margin-bottom: 2px; font-size: 12px; }
+
+    /* ── Main ── */
+    .main { flex: 1; overflow-y: auto; padding: 40px 48px; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .breadcrumb {
+      font-size: 12px; color: var(--text-muted);
+      margin-bottom: 22px;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    .breadcrumb span { color: var(--text); }
+    .breadcrumb-sep { color: var(--text-light); }
+
+    .page-header { margin-bottom: 26px; }
+
+    .page-header h1 {
+      font-size: 28px; font-weight: 700;
+      color: var(--text); letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .page-meta {
+      font-size: 13px; color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .page-desc {
+      font-size: 13.5px; color: var(--text-muted);
+      line-height: 1.65; max-width: 660px;
+      margin-bottom: 14px;
+    }
+
+    .tag-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .tag {
+      font-size: 11.5px; font-weight: 500;
+      padding: 3px 9px; border-radius: 4px;
+      display: inline-block;
+    }
+
+    .tag-blue   { background: #e0eaff; color: #3b5bdb; }
+    .tag-green  { background: #d3f9d8; color: #2f9e44; }
+    .tag-purple { background: #f0e6ff; color: #7950f2; }
+    .tag-teal   { background: #d3f9f5; color: #0c8599; }
+    .tag-orange { background: #fff3bf; color: #e67700; }
+    .tag-gray   { background: #f1f3f5; color: #868e96; }
+    .tag-brown  { background: #f5ebe0; color: #8b5e3c; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      gap: 10px; margin-bottom: 24px;
+    }
+
+    .stat-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 7px; padding: 14px 16px;
+    }
+
+    .stat-box-label { font-size: 11px; color: var(--text-muted); margin-bottom: 5px; }
+    .stat-box-value { font-size: 22px; font-weight: 700; color: var(--text); }
+    .stat-box-sub   { font-size: 11px; color: var(--text-light); margin-top: 3px; }
+
+    .divider { height: 1px; background: var(--border); margin: 22px 0; }
+
+    .diagram-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden; margin-bottom: 22px;
+    }
+
+    .diagram-card-header {
+      padding: 10px 18px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+      background: #fafaf8;
+    }
+
+    .diagram-card-label {
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .diagram-card-sub { font-size: 11px; color: var(--text-light); margin-left: auto; }
+
+    .diagram-card-body { padding: 36px 36px 32px; overflow-x: auto; }
+    .mermaid { min-width: 900px; font-size: 16px; }
+    .mermaid svg { min-height: 500px; width: 100%; }
+
+    .callout {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 13px 16px;
+      margin-bottom: 22px; font-size: 13px;
+      color: var(--text); display: flex; gap: 10px;
+      align-items: flex-start; line-height: 1.6;
+    }
+
+    .callout-icon { flex-shrink: 0; margin-top: 1px; }
+
+    .section-title {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-muted); margin-bottom: 10px;
+    }
+
+    .legend-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 7px; overflow: hidden;
+    }
+
+    .legend-table th {
+      text-align: left; padding: 9px 14px;
+      background: #fafaf8; color: var(--text-muted);
+      font-weight: 500; font-size: 11px;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .legend-table td {
+      padding: 10px 14px; border-bottom: 1px solid var(--border-light);
+      color: var(--text); vertical-align: top; line-height: 1.55;
+    }
+
+    .legend-table td:first-child {
+      font-weight: 500; white-space: nowrap; width: 200px;
+    }
+
+    .legend-table tr:last-child td { border-bottom: none; }
+
+    /* ── Fullscreen overlay ── */
+    .diagram-card { position: relative; cursor: pointer; }
+
+    .diagram-card-expand {
+      position: absolute; top: 10px; right: 14px;
+      width: 30px; height: 30px; border-radius: 6px;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 15px; color: var(--text-muted);
+      transition: background 0.15s, color 0.15s;
+      z-index: 2;
+    }
+
+    .diagram-card-expand:hover { background: var(--active-bg); color: var(--text); }
+
+    .fullscreen-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 9999;
+      align-items: center; justify-content: center;
+      padding: 32px;
+    }
+
+    .fullscreen-overlay.active { display: flex; }
+
+    .fullscreen-content {
+      background: var(--surface);
+      border-radius: 12px;
+      width: 95vw; height: 90vh;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .fullscreen-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+      background: #fafaf8; flex-shrink: 0;
+    }
+
+    .fullscreen-title {
+      font-size: 14px; font-weight: 600; color: var(--text);
+    }
+
+    .fullscreen-close {
+      margin-left: auto;
+      width: 32px; height: 32px; border-radius: 6px;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 18px; color: var(--text-muted);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .fullscreen-close:hover { background: #fee2e2; color: #dc2626; }
+
+    .fullscreen-body {
+      flex: 1; overflow: auto;
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px;
+    }
+
+    .fullscreen-body {
+      cursor: grab;
+      user-select: none;
+    }
+
+    .fullscreen-body.dragging { cursor: grabbing; }
+
+    .fullscreen-body svg {
+      transform-origin: 0 0;
+    }
+
+    .fullscreen-zoom-controls {
+      position: absolute; bottom: 20px; right: 20px;
+      display: flex; gap: 6px; z-index: 10;
+    }
+
+    .fullscreen-zoom-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 18px; font-weight: 600;
+      color: var(--text); transition: background 0.15s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .fullscreen-zoom-btn:hover { background: var(--active-bg); }
+
+    .fullscreen-zoom-label {
+      width: 56px; height: 36px; border-radius: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 500; color: var(--text-muted);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-logo">SB</div>
+    <div class="topbar-name">Signsbeat</div>
+    <div class="topbar-sep">&rsaquo;</div>
+    <div class="topbar-section">Product Manual</div>
+    <div class="topbar-right">
+      <span class="topbar-date">2026-04-14</span>
+    </div>
+  </div>
+
+  <div class="body-wrap">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">MCP Knowledge Base</div>
+        <div class="sidebar-item active" onclick="showPage('overview', this)">
+          <span class="sidebar-item-icon">&#x2B21;</span>
+          System Overview
+          <span class="sidebar-dot dot-blue"></span>
+        </div>
+        <div class="sidebar-item" onclick="showPage('request-flow', this)">
+          <span class="sidebar-item-icon">&rlarr;</span>
+          Request Flow
+          <span class="sidebar-dot dot-teal"></span>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Performance</div>
+        <div class="sidebar-item" onclick="showPage('performance', this)">
+          <span class="sidebar-item-icon">&#x23F1;</span>
+          Latency Analysis
+          <span class="sidebar-dot dot-orange"></span>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-footer">
+        <strong>Product Manual</strong>
+        Signsbeat Engineering &middot; v1.0
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main" id="main-scroll">
+
+      <!-- ── Page 1: System Overview ── -->
+      <div class="page active" id="page-overview">
+        <div class="breadcrumb">
+          Engineering <span class="breadcrumb-sep">&rsaquo;</span>
+          MCP Knowledge Base <span class="breadcrumb-sep">&rsaquo;</span>
+          <span>System Overview</span>
+        </div>
+
+        <div class="page-header">
+          <h1>MCP Knowledge Base Architecture</h1>
+          <div class="page-meta">2026-04-14</div>
+          <div class="page-desc">你的主機（24hr）上跑 MCP Server，透過 HTTPS/SSE 對外提供 Obsidian 知識庫的搜尋與讀取服務。Remote users 透過 Claude 客戶端連接，Claude 作為 AI 大腦負責理解問題並生成回答。</div>
+          <div class="tag-row">
+            <span class="tag tag-teal">MCP Protocol</span>
+            <span class="tag tag-blue">HTTPS / SSE</span>
+            <span class="tag tag-purple">Obsidian Vault</span>
+            <span class="tag tag-green">Claude AI</span>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-box-label">MCP Tools</div>
+            <div class="stat-box-value">3</div>
+            <div class="stat-box-sub">list &middot; read &middot; search</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Knowledge Files</div>
+            <div class="stat-box-value">N</div>
+            <div class="stat-box-sub">Obsidian .md files</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Server Port</div>
+            <div class="stat-box-value">8000</div>
+            <div class="stat-box-sub">HTTPS + SSE</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Uptime</div>
+            <div class="stat-box-value">24hr</div>
+            <div class="stat-box-sub">Home machine</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="diagram-card">
+          <div class="diagram-card-header">
+            <div class="diagram-card-label">System Overview &middot; Mermaid</div>
+            <div class="diagram-card-sub">flowchart LR</div>
+          </div>
+          <div class="diagram-card-body">
+            <div class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#f7f7f5', 'primaryBorderColor': '#d0cfc9', 'lineColor': '#5a5a5a', 'secondaryColor': '#efefed', 'fontSize': '18px'}}}%%
+flowchart TB
+  subgraph USERS["Remote Users"]
+    direction LR
+    UA["Remote User A\nclaude.ai / Claude Desktop"]
+    UB["Remote User B\nAPI / Custom App"]
+    UC["Remote User C\nAny MCP Client"]
+  end
+
+  subgraph CLOUD["Anthropic Cloud"]
+    CLAUDE["Claude AI\nAI Brain"]
+  end
+
+  subgraph LOCAL["Your Machine - 24hr Server"]
+    MCP["MCP Server\nserver.py : port 8000\nHTTPS + SSE"]
+
+    subgraph TOOLS["MCP Tools"]
+      direction LR
+      T1["list_files()"]
+      T2["read_file()"]
+      T3["search_content()"]
+    end
+
+    subgraph VAULT["~/signsbeat/ Obsidian Vault"]
+      direction LR
+      F1["wiki/fatigue.md"]
+      F2["wiki/nutrition.md"]
+      F3["skills/sleep.md"]
+      F4["skills/exercise.md"]
+    end
+
+    MCP --> T1 & T2 & T3
+    T1 & T2 & T3 --> VAULT
+  end
+
+  UA -->|"HTTPS"| CLAUDE
+  UB -->|"HTTPS"| CLAUDE
+  UC -->|"HTTPS"| CLAUDE
+  CLAUDE <-->|"MCP Protocol\nHTTPS / SSE"| MCP
+            </div>
+          </div>
+        </div>
+
+        <div class="callout">
+          <span class="callout-icon">&#x1F4A1;</span>
+          <div><strong>Architecture Summary</strong> &mdash; Claude（在 Anthropic 雲端）是 AI 大腦，負責理解問題與生成回答。你的主機只負責提供知識庫資料。Remote users 不直接連你的主機，而是透過 Claude 客戶端間接存取。</div>
+        </div>
+
+        <div class="section-title">元件說明</div>
+        <table class="legend-table">
+          <thead><tr><th>元件</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>Remote Users (A/B/C)</td><td>使用 Claude 客戶端（claude.ai、Claude Desktop、API 自建 App、或任何 MCP Client）的使用者</td></tr>
+            <tr><td>Claude AI (Anthropic Cloud)</td><td>AI 大腦，託管在 Anthropic 雲端。負責接收用戶問題、決定呼叫哪個 MCP Tool、理解回傳內容、生成最終回答</td></tr>
+            <tr><td>MCP Server (server.py)</td><td>跑在你的主機上的 Python 服務，透過 HTTPS + SSE 對外暴露 MCP 協議端點，供 Claude 呼叫</td></tr>
+            <tr><td>list_files()</td><td>列出 Obsidian Vault 中所有 .md 檔案的路徑清單</td></tr>
+            <tr><td>read_file()</td><td>讀取指定 .md 檔案的完整內容</td></tr>
+            <tr><td>search_content()</td><td>根據關鍵字搜尋知識庫，回傳匹配的檔案片段</td></tr>
+            <tr><td>Obsidian Vault</td><td>~/signsbeat/ 目錄下的 Markdown 知識庫，包含產品 wiki、技能文件等結構化內容</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Page 2: Request Flow ── -->
+      <div class="page" id="page-request-flow">
+        <div class="breadcrumb">
+          Engineering <span class="breadcrumb-sep">&rsaquo;</span>
+          MCP Knowledge Base <span class="breadcrumb-sep">&rsaquo;</span>
+          <span>Request Flow</span>
+        </div>
+
+        <div class="page-header">
+          <h1>Request &amp; Response Flow</h1>
+          <div class="page-meta">2026-04-14</div>
+          <div class="page-desc">從用戶提問到收到 AI 回答的完整 5 步流程。Claude 作為 AI 大腦，自動判斷要查詢哪些知識庫內容，再根據內容生成回答。</div>
+          <div class="tag-row">
+            <span class="tag tag-teal">Sequence Diagram</span>
+            <span class="tag tag-blue">5-Step Flow</span>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-box-label">Total Steps</div>
+            <div class="stat-box-value">5</div>
+            <div class="stat-box-sub">Ask &rarr; Route &rarr; Search &rarr; Return &rarr; Answer</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Network Hops</div>
+            <div class="stat-box-value">4</div>
+            <div class="stat-box-sub">User &harr; Claude &harr; MCP</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">AI Processing</div>
+            <div class="stat-box-value">2x</div>
+            <div class="stat-box-sub">Tool selection + Response gen</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="diagram-card">
+          <div class="diagram-card-header">
+            <div class="diagram-card-label">Request Flow &middot; Mermaid</div>
+            <div class="diagram-card-sub">sequenceDiagram</div>
+          </div>
+          <div class="diagram-card-body">
+            <div class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#f7f7f5', 'primaryBorderColor': '#d0cfc9', 'lineColor': '#5a5a5a', 'secondaryColor': '#efefed', 'fontSize': '18px'}}}%%
+sequenceDiagram
+    participant U as User
+    participant C as Claude AI
+    participant M as MCP Server
+    participant V as Obsidian Vault
+
+    U->>C: Ask question
+    activate C
+
+    C->>C: Decide which tool to call
+
+    C->>M: search_content("fatigue")
+    activate M
+
+    M->>V: Read .md files
+    V-->>M: fatigue.md content
+
+    M-->>C: Return matched content
+    deactivate M
+
+    C->>C: Generate answer from content
+
+    C-->>U: Final answer
+    deactivate C
+            </div>
+          </div>
+        </div>
+
+        <div class="callout">
+          <span class="callout-icon">&#x1F4A1;</span>
+          <div><strong>Key Insight</strong> &mdash; Claude 會自動判斷需要哪些資料。如果一次搜尋不夠，它可以連續呼叫多個 tool（例如先 search_content 再 read_file），直到收集足夠資訊才生成回答。</div>
+        </div>
+
+        <div class="section-title">Flow 步驟詳解</div>
+        <table class="legend-table">
+          <thead><tr><th>步驟</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>Step 1: User Asks</td><td>用戶在 Claude 客戶端輸入問題（例如 claude.ai 聊天介面）</td></tr>
+            <tr><td>Step 2: AI Decides Tool</td><td>Claude 分析問題語意，自動決定要呼叫 search_content()、read_file() 或 list_files()，不需人工指定</td></tr>
+            <tr><td>Step 3: MCP Call</td><td>Claude 透過 HTTPS/SSE 連線到你主機上的 MCP Server，發送 tool call 請求</td></tr>
+            <tr><td>Step 4: Return Results</td><td>MCP Server 從 Obsidian Vault 讀取相關 .md 內容，回傳給 Claude</td></tr>
+            <tr><td>Step 5: Generate Answer</td><td>Claude 根據知識庫內容 + AI 理解，組合出最終回答送給用戶</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Page 3: Performance ── -->
+      <div class="page" id="page-performance">
+        <div class="breadcrumb">
+          Engineering <span class="breadcrumb-sep">&rsaquo;</span>
+          Performance <span class="breadcrumb-sep">&rsaquo;</span>
+          <span>Latency Analysis</span>
+        </div>
+
+        <div class="page-header">
+          <h1>Latency &amp; Performance Analysis</h1>
+          <div class="page-meta">2026-04-14</div>
+          <div class="page-desc">各環節延遲分析與效能瓶頸評估。整體回覆時間主要受 Claude AI 生成速度影響，MCP Server 本身回應極快。</div>
+          <div class="tag-row">
+            <span class="tag tag-orange">Latency</span>
+            <span class="tag tag-gray">Bottleneck Analysis</span>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-box-label">MCP Server Response</div>
+            <div class="stat-box-value">&lt;100ms</div>
+            <div class="stat-box-sub">Local file read</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Network Round-trip</div>
+            <div class="stat-box-value">50-200ms</div>
+            <div class="stat-box-sub">Depends on home upload speed</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Claude AI Generation</div>
+            <div class="stat-box-value">2-8s</div>
+            <div class="stat-box-sub">Main bottleneck</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Total End-to-End</div>
+            <div class="stat-box-value">3-10s</div>
+            <div class="stat-box-sub">Acceptable for chatbot</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="diagram-card">
+          <div class="diagram-card-header">
+            <div class="diagram-card-label">Latency Breakdown &middot; Mermaid</div>
+            <div class="diagram-card-sub">flowchart LR</div>
+          </div>
+          <div class="diagram-card-body">
+            <div class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#f7f7f5', 'primaryBorderColor': '#d0cfc9', 'lineColor': '#5a5a5a', 'secondaryColor': '#efefed', 'fontSize': '18px'}}}%%
+flowchart LR
+  subgraph FAST["&#x26A1; Fast (&lt; 200ms)"]
+    direction TB
+    S1["&#x2460; MCP Server\nFile Search\n~50ms"]
+    S2["&#x2461; File Read\nObsidian .md\n~30ms"]
+  end
+
+  subgraph MEDIUM["&#x1F50C; Variable (50-200ms)"]
+    direction TB
+    S3["&#x2462; Network\nHome Upload\n50-200ms"]
+  end
+
+  subgraph SLOW["&#x1F422; Slowest (2-8s)"]
+    direction TB
+    S4["&#x2463; Claude AI\nToken Generation\n2-8 sec"]
+  end
+
+  S1 --> S2
+  S2 -->|"via network"| S3
+  S3 -->|"to Anthropic"| S4
+            </div>
+          </div>
+        </div>
+
+        <div class="callout">
+          <span class="callout-icon">&#x26A0;&#xFE0F;</span>
+          <div><strong>Bottleneck</strong> &mdash; 回覆速度的瓶頸不在你的主機，而在 Claude AI 的 token 生成速度（2-8 秒）。這跟一般 ChatGPT / Claude 聊天的體感速度一樣，用戶已經習慣這個等待時間，所以<strong>效能是可接受的</strong>。</div>
+        </div>
+
+        <div class="callout">
+          <span class="callout-icon">&#x1F3E0;</span>
+          <div><strong>Home Server Risks</strong> &mdash; 主要風險不是速度，而是穩定性：停電/斷網 = 服務中斷、家用上行頻寬有限（多人同時查詢可能變慢）、需要固定 IP 或 DDNS + SSL 憑證。建議初期用於內部團隊，驗證可行後再考慮遷到雲端。</div>
+        </div>
+
+        <div class="section-title">效能對比</div>
+        <table class="legend-table">
+          <thead><tr><th>指標</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>MCP Server (&lt;100ms)</td><td>本地檔案讀取極快，即使知識庫有數百個 .md 檔也不是問題</td></tr>
+            <tr><td>Network (50-200ms)</td><td>取決於你家的上行頻寬。中華電信光纖通常 50-100Mbps 上行，足夠應付文字傳輸</td></tr>
+            <tr><td>Claude AI (2-8s)</td><td>最大瓶頸。Haiku 最快（~2s）、Sonnet 中等（~4s）、Opus 最慢但最聰明（~8s）。跟直接用 claude.ai 聊天一樣快</td></tr>
+            <tr><td>Concurrent Users</td><td>MCP Server 本身支援多人連線，但家用頻寬限制約 5-10 人同時使用。團隊內部使用綽綽有餘</td></tr>
+            <tr><td>Knowledge Base Size</td><td>文字搜尋對 CPU 幾乎無負擔。即使 1000+ 個 .md 檔，搜尋也在 100ms 內完成</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /body-wrap -->
+
+  <!-- Fullscreen overlay -->
+  <div class="fullscreen-overlay" id="fullscreen-overlay" onclick="closeFullscreen(event)">
+    <div class="fullscreen-content" onclick="event.stopPropagation()">
+      <div class="fullscreen-header">
+        <span class="fullscreen-title" id="fullscreen-title"></span>
+        <span style="font-size:11px;color:var(--text-light);margin-left:8px;">Scroll to zoom &middot; Drag to pan</span>
+        <div class="fullscreen-close" onclick="closeFullscreen()">&times;</div>
+      </div>
+      <div class="fullscreen-body" id="fullscreen-body"></div>
+      <div class="fullscreen-zoom-controls">
+        <div class="fullscreen-zoom-btn" onclick="zoomFullscreen(-0.2)">−</div>
+        <div class="fullscreen-zoom-label" id="zoom-label">100%</div>
+        <div class="fullscreen-zoom-btn" onclick="zoomFullscreen(0.2)">+</div>
+        <div class="fullscreen-zoom-btn" onclick="resetFullscreen()" title="Reset">⟳</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'base', flowchart: { curve: 'basis' } });
+
+    function showPage(id, el) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+      document.getElementById('page-' + id).classList.add('active');
+      el.classList.add('active');
+      document.getElementById('main-scroll').scrollTop = 0;
+    }
+
+    // Pan & zoom state
+    var fsState = { scale: 1, panX: 0, panY: 0, dragging: false, startX: 0, startY: 0 };
+
+    // Add expand buttons to all diagram cards
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.diagram-card').forEach(function(card) {
+        var btn = document.createElement('div');
+        btn.className = 'diagram-card-expand';
+        btn.innerHTML = '&#x26F6;';
+        btn.title = 'Full screen';
+        btn.onclick = function(e) {
+          e.stopPropagation();
+          openFullscreen(card);
+        };
+        card.appendChild(btn);
+
+        card.querySelector('.diagram-card-body').addEventListener('click', function() {
+          openFullscreen(card);
+        });
+      });
+
+      // Pan: mouse events on fullscreen body
+      var body = document.getElementById('fullscreen-body');
+      body.addEventListener('mousedown', function(e) {
+        if (e.button !== 0) return;
+        fsState.dragging = true;
+        fsState.startX = e.clientX - fsState.panX;
+        fsState.startY = e.clientY - fsState.panY;
+        body.classList.add('dragging');
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', function(e) {
+        if (!fsState.dragging) return;
+        fsState.panX = e.clientX - fsState.startX;
+        fsState.panY = e.clientY - fsState.startY;
+        applyTransform();
+      });
+      document.addEventListener('mouseup', function() {
+        fsState.dragging = false;
+        body.classList.remove('dragging');
+      });
+
+      // Zoom: scroll wheel
+      body.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        var delta = e.deltaY > 0 ? -0.1 : 0.1;
+        zoomFullscreen(delta);
+      }, { passive: false });
+    });
+
+    function applyTransform() {
+      var svg = document.querySelector('#fullscreen-body svg');
+      if (!svg) return;
+      svg.style.transform = 'translate(' + fsState.panX + 'px, ' + fsState.panY + 'px) scale(' + fsState.scale + ')';
+      document.getElementById('zoom-label').textContent = Math.round(fsState.scale * 100) + '%';
+    }
+
+    function zoomFullscreen(delta) {
+      fsState.scale = Math.max(0.3, Math.min(5, fsState.scale + delta));
+      applyTransform();
+    }
+
+    function resetFullscreen() {
+      fsState.scale = 1; fsState.panX = 0; fsState.panY = 0;
+      applyTransform();
+    }
+
+    function openFullscreen(card) {
+      var title = card.querySelector('.diagram-card-label').textContent;
+      var svgEl = card.querySelector('.mermaid svg');
+      if (!svgEl) return;
+
+      // Reset state
+      fsState.scale = 1; fsState.panX = 0; fsState.panY = 0;
+
+      document.getElementById('fullscreen-title').textContent = title;
+      var body = document.getElementById('fullscreen-body');
+      var clone = svgEl.cloneNode(true);
+      clone.removeAttribute('width');
+      clone.removeAttribute('height');
+      clone.style.width = 'auto';
+      clone.style.height = 'auto';
+      clone.style.maxWidth = 'none';
+      clone.style.maxHeight = 'none';
+      clone.style.minWidth = '0';
+      clone.style.transformOrigin = 'center center';
+      body.innerHTML = '';
+      body.appendChild(clone);
+
+      document.getElementById('zoom-label').textContent = '100%';
+      document.getElementById('fullscreen-overlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeFullscreen(e) {
+      if (e && e.target !== document.getElementById('fullscreen-overlay')) return;
+      document.getElementById('fullscreen-overlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeFullscreen();
+    });
+  </script>
+</body>
+</html>

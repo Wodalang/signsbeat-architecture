@@ -152,6 +152,72 @@
     .lang-pill-btn.active { background: #37352f; color: #fff; font-weight: 600; }
     .lang-pill-btn:not(.active):hover { background: var(--bg); color: var(--text); }
     .lang-pill-divider { width: 1px; background: var(--border); height: 100%; }
+
+    /* ── Fullscreen overlay ── */
+    .diagram-card { position: relative; }
+    .diagram-card-expand {
+      position: absolute; top: 10px; right: 14px;
+      width: 30px; height: 30px; border-radius: 6px;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 15px; color: var(--text-muted);
+      transition: background 0.15s, color 0.15s; z-index: 2;
+    }
+    .diagram-card-expand:hover { background: var(--active-bg); color: var(--text); }
+    .fullscreen-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75); z-index: 9999;
+      align-items: center; justify-content: center; padding: 32px;
+    }
+    .fullscreen-overlay.active { display: flex; }
+    .fullscreen-content {
+      background: var(--surface); border-radius: 12px;
+      width: 95vw; height: 90vh;
+      display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative;
+    }
+    .fullscreen-header {
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+      background: #fafaf8; flex-shrink: 0;
+    }
+    .fullscreen-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .fullscreen-hint { font-size: 11px; color: var(--text-light); margin-left: 8px; }
+    .fullscreen-close {
+      margin-left: auto; width: 32px; height: 32px; border-radius: 6px;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 18px; color: var(--text-muted);
+      transition: background 0.15s, color 0.15s;
+    }
+    .fullscreen-close:hover { background: #fee2e2; color: #dc2626; }
+    .fullscreen-body {
+      flex: 1; overflow: auto;
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px; cursor: grab; user-select: none;
+    }
+    .fullscreen-body.dragging { cursor: grabbing; }
+    .fullscreen-body svg { transform-origin: 0 0; }
+    .fullscreen-zoom-controls {
+      position: absolute; bottom: 20px; right: 20px;
+      display: flex; gap: 6px; z-index: 10;
+    }
+    .fullscreen-zoom-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 18px; font-weight: 600;
+      color: var(--text); transition: background 0.15s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .fullscreen-zoom-btn:hover { background: var(--active-bg); }
+    .fullscreen-zoom-label {
+      width: 56px; height: 36px; border-radius: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 500; color: var(--text-muted);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body>
@@ -239,6 +305,24 @@
       <div class="sidebar-item" onclick="showPage('cost-evaluation', this)">
         <span class="sidebar-item-icon">◎</span> Cost & Evaluation
         <span class="sidebar-dot dot-purple"></span>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">MCP Knowledge Base</div>
+      <div class="sidebar-item" onclick="showPage('mcp-overview', this)">
+        <span class="sidebar-item-icon">◈</span> MCP System Overview
+        <span class="sidebar-dot dot-teal"></span>
+      </div>
+      <div class="sidebar-item" onclick="showPage('mcp-request-flow', this)">
+        <span class="sidebar-item-icon">⇄</span> Request Flow
+        <span class="sidebar-dot dot-blue"></span>
+      </div>
+      <div class="sidebar-item" onclick="showPage('mcp-performance', this)">
+        <span class="sidebar-item-icon">◎</span> Latency Analysis
+        <span class="sidebar-dot dot-orange"></span>
       </div>
     </div>
 
@@ -687,6 +771,236 @@
           <div class="missing-item"><span class="missing-bullet">·</span>誰可以存取哪些數據（依角色）</div>
         </div>
       </div>
+    </div>
+
+    <!-- ── MCP Knowledge Base: System Overview ── -->
+    <div class="page" id="page-mcp-overview">
+      <div class="breadcrumb">Engineering <span class="breadcrumb-sep">›</span> MCP Knowledge Base <span class="breadcrumb-sep">›</span> <span>System Overview</span></div>
+      <div class="page-header">
+        <h1>MCP Knowledge Base Architecture</h1>
+        <div class="page-meta">2026-04-14</div>
+        <div class="page-desc">你的主機（24hr）上跑 MCP Server，透過 HTTPS/SSE 對外提供 Obsidian 知識庫的搜尋與讀取服務。Remote users 透過 Claude 客戶端連接，Claude 作為 AI 大腦負責理解問題並生成回答。</div>
+        <div class="tag-row">
+          <span class="tag tag-teal">MCP Protocol</span>
+          <span class="tag tag-blue">HTTPS / SSE</span>
+          <span class="tag tag-purple">Obsidian Vault</span>
+          <span class="tag tag-green">Claude AI</span>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="stat-box-label">MCP Tools</div><div class="stat-box-value">3</div><div class="stat-box-sub">list · read · search</div></div>
+        <div class="stat-box"><div class="stat-box-label">Knowledge Files</div><div class="stat-box-value">N</div><div class="stat-box-sub">Obsidian .md files</div></div>
+        <div class="stat-box"><div class="stat-box-label">Server Port</div><div class="stat-box-value">8000</div><div class="stat-box-sub">HTTPS + SSE</div></div>
+        <div class="stat-box"><div class="stat-box-label">Uptime</div><div class="stat-box-value">24hr</div><div class="stat-box-sub">Home machine</div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="diagram-card">
+        <div class="diagram-card-header">
+          <div class="diagram-card-label">System Overview · Mermaid</div>
+          <div class="diagram-card-sub">flowchart TB</div>
+        </div>
+        <div class="diagram-card-body">
+          <div class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#f7f7f5', 'primaryBorderColor': '#d0cfc9', 'lineColor': '#5a5a5a', 'secondaryColor': '#efefed', 'fontSize': '16px'}}}%%
+flowchart TB
+  subgraph USERS["Remote Users"]
+    direction LR
+    UA["Remote User A\nclaude.ai / Claude Desktop"]
+    UB["Remote User B\nAPI / Custom App"]
+    UC["Remote User C\nAny MCP Client"]
+  end
+
+  subgraph CLOUD["Anthropic Cloud"]
+    CLAUDE["Claude AI\nAI Brain"]
+  end
+
+  subgraph LOCAL["Your Machine - 24hr Server"]
+    MCP["MCP Server\nserver.py : port 8000\nHTTPS + SSE"]
+
+    subgraph TOOLS["MCP Tools"]
+      direction LR
+      T1["list_files()"]
+      T2["read_file()"]
+      T3["search_content()"]
+    end
+
+    subgraph VAULT["~/signsbeat/ Obsidian Vault"]
+      direction LR
+      F1["wiki/fatigue.md"]
+      F2["wiki/nutrition.md"]
+      F3["skills/sleep.md"]
+      F4["skills/exercise.md"]
+    end
+
+    MCP --> T1 & T2 & T3
+    T1 & T2 & T3 --> VAULT
+  end
+
+  UA -->|"HTTPS"| CLAUDE
+  UB -->|"HTTPS"| CLAUDE
+  UC -->|"HTTPS"| CLAUDE
+  CLAUDE <-->|"MCP Protocol\nHTTPS / SSE"| MCP
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-default">
+        <span class="callout-icon">💡</span>
+        <div><strong>Architecture Summary</strong> — Claude（在 Anthropic 雲端）是 AI 大腦，負責理解問題與生成回答。你的主機只負責提供知識庫資料。Remote users 不直接連你的主機，而是透過 Claude 客戶端間接存取。</div>
+      </div>
+      <div class="section-title">元件說明</div>
+      <table class="legend-table">
+        <thead><tr><th>元件</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>Remote Users (A/B/C)</td><td>使用 Claude 客戶端（claude.ai、Claude Desktop、API 自建 App、或任何 MCP Client）的使用者</td></tr>
+          <tr><td>Claude AI (Anthropic Cloud)</td><td>AI 大腦，託管在 Anthropic 雲端。負責接收用戶問題、決定呼叫哪個 MCP Tool、理解回傳內容、生成最終回答</td></tr>
+          <tr><td>MCP Server (server.py)</td><td>跑在你的主機上的 Python 服務，透過 HTTPS + SSE 對外暴露 MCP 協議端點，供 Claude 呼叫</td></tr>
+          <tr><td>list_files()</td><td>列出 Obsidian Vault 中所有 .md 檔案的路徑清單</td></tr>
+          <tr><td>read_file()</td><td>讀取指定 .md 檔案的完整內容</td></tr>
+          <tr><td>search_content()</td><td>根據關鍵字搜尋知識庫，回傳匹配的檔案片段</td></tr>
+          <tr><td>Obsidian Vault</td><td>~/signsbeat/ 目錄下的 Markdown 知識庫，包含產品 wiki、技能文件等結構化內容</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── MCP Knowledge Base: Request Flow ── -->
+    <div class="page" id="page-mcp-request-flow">
+      <div class="breadcrumb">Engineering <span class="breadcrumb-sep">›</span> MCP Knowledge Base <span class="breadcrumb-sep">›</span> <span>Request Flow</span></div>
+      <div class="page-header">
+        <h1>Request &amp; Response Flow</h1>
+        <div class="page-meta">2026-04-14</div>
+        <div class="page-desc">從用戶提問到收到 AI 回答的完整 5 步流程。Claude 作為 AI 大腦，自動判斷要查詢哪些知識庫內容，再根據內容生成回答。</div>
+        <div class="tag-row">
+          <span class="tag tag-teal">Sequence Diagram</span>
+          <span class="tag tag-blue">5-Step Flow</span>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="stat-box-label">Total Steps</div><div class="stat-box-value">5</div><div class="stat-box-sub">Ask → Route → Search → Return → Answer</div></div>
+        <div class="stat-box"><div class="stat-box-label">Network Hops</div><div class="stat-box-value">4</div><div class="stat-box-sub">User ↔ Claude ↔ MCP</div></div>
+        <div class="stat-box"><div class="stat-box-label">AI Processing</div><div class="stat-box-value">2x</div><div class="stat-box-sub">Tool selection + Response gen</div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="diagram-card">
+        <div class="diagram-card-header">
+          <div class="diagram-card-label">Request Flow · Mermaid</div>
+          <div class="diagram-card-sub">sequenceDiagram</div>
+        </div>
+        <div class="diagram-card-body">
+          <div class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#f7f7f5', 'primaryBorderColor': '#d0cfc9', 'lineColor': '#5a5a5a', 'secondaryColor': '#efefed', 'fontSize': '16px'}}}%%
+sequenceDiagram
+    participant U as User
+    participant C as Claude AI
+    participant M as MCP Server
+    participant V as Obsidian Vault
+
+    U->>C: Ask question
+    activate C
+
+    C->>C: Decide which tool to call
+
+    C->>M: search_content("fatigue")
+    activate M
+
+    M->>V: Read .md files
+    V-->>M: fatigue.md content
+
+    M-->>C: Return matched content
+    deactivate M
+
+    C->>C: Generate answer from content
+
+    C-->>U: Final answer
+    deactivate C
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-default">
+        <span class="callout-icon">💡</span>
+        <div><strong>Key Insight</strong> — Claude 會自動判斷需要哪些資料。如果一次搜尋不夠，它可以連續呼叫多個 tool（例如先 search_content 再 read_file），直到收集足夠資訊才生成回答。</div>
+      </div>
+      <div class="section-title">Flow 步驟詳解</div>
+      <table class="legend-table">
+        <thead><tr><th>步驟</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>Step 1: User Asks</td><td>用戶在 Claude 客戶端輸入問題（例如 claude.ai 聊天介面）</td></tr>
+          <tr><td>Step 2: AI Decides Tool</td><td>Claude 分析問題語意，自動決定要呼叫 search_content()、read_file() 或 list_files()，不需人工指定</td></tr>
+          <tr><td>Step 3: MCP Call</td><td>Claude 透過 HTTPS/SSE 連線到你主機上的 MCP Server，發送 tool call 請求</td></tr>
+          <tr><td>Step 4: Return Results</td><td>MCP Server 從 Obsidian Vault 讀取相關 .md 內容，回傳給 Claude</td></tr>
+          <tr><td>Step 5: Generate Answer</td><td>Claude 根據知識庫內容 + AI 理解，組合出最終回答送給用戶</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── MCP Knowledge Base: Latency Analysis ── -->
+    <div class="page" id="page-mcp-performance">
+      <div class="breadcrumb">Engineering <span class="breadcrumb-sep">›</span> MCP Knowledge Base <span class="breadcrumb-sep">›</span> <span>Latency Analysis</span></div>
+      <div class="page-header">
+        <h1>Latency &amp; Performance Analysis</h1>
+        <div class="page-meta">2026-04-14</div>
+        <div class="page-desc">各環節延遲分析與效能瓶頸評估。整體回覆時間主要受 Claude AI 生成速度影響，MCP Server 本身回應極快。</div>
+        <div class="tag-row">
+          <span class="tag tag-orange">Latency</span>
+          <span class="tag tag-gray">Bottleneck Analysis</span>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="stat-box-label">MCP Server Response</div><div class="stat-box-value">&lt;100ms</div><div class="stat-box-sub">Local file read</div></div>
+        <div class="stat-box"><div class="stat-box-label">Network Round-trip</div><div class="stat-box-value">50-200ms</div><div class="stat-box-sub">Depends on home upload speed</div></div>
+        <div class="stat-box"><div class="stat-box-label">Claude AI Generation</div><div class="stat-box-value">2-8s</div><div class="stat-box-sub">Main bottleneck</div></div>
+        <div class="stat-box"><div class="stat-box-label">Total End-to-End</div><div class="stat-box-value">3-10s</div><div class="stat-box-sub">Acceptable for chatbot</div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="diagram-card">
+        <div class="diagram-card-header">
+          <div class="diagram-card-label">Latency Breakdown · Mermaid</div>
+          <div class="diagram-card-sub">flowchart LR</div>
+        </div>
+        <div class="diagram-card-body">
+          <div class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#f7f7f5', 'primaryBorderColor': '#d0cfc9', 'lineColor': '#5a5a5a', 'secondaryColor': '#efefed', 'fontSize': '16px'}}}%%
+flowchart LR
+  subgraph FAST["Fast &lt; 200ms"]
+    direction TB
+    S1["MCP Server\nFile Search\n~50ms"]
+    S2["File Read\nObsidian .md\n~30ms"]
+  end
+
+  subgraph MEDIUM["Variable 50-200ms"]
+    direction TB
+    S3["Network\nHome Upload\n50-200ms"]
+  end
+
+  subgraph SLOW["Slowest 2-8s"]
+    direction TB
+    S4["Claude AI\nToken Generation\n2-8 sec"]
+  end
+
+  S1 --> S2
+  S2 -->|"via network"| S3
+  S3 -->|"to Anthropic"| S4
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <div><strong>Bottleneck</strong> — 回覆速度的瓶頸不在你的主機，而在 Claude AI 的 token 生成速度（2-8 秒）。這跟一般 ChatGPT / Claude 聊天的體感速度一樣，用戶已經習慣這個等待時間，所以<strong>效能是可接受的</strong>。</div>
+      </div>
+      <div class="callout callout-default">
+        <span class="callout-icon">🏠</span>
+        <div><strong>Home Server Risks</strong> — 主要風險不是速度，而是穩定性：停電/斷網 = 服務中斷、家用上行頻寬有限（多人同時查詢可能變慢）、需要固定 IP 或 DDNS + SSL 憑證。建議初期用於內部團隊，驗證可行後再考慮遷到雲端。</div>
+      </div>
+      <div class="section-title">效能對比</div>
+      <table class="legend-table">
+        <thead><tr><th>指標</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>MCP Server (&lt;100ms)</td><td>本地檔案讀取極快，即使知識庫有數百個 .md 檔也不是問題</td></tr>
+          <tr><td>Network (50-200ms)</td><td>取決於你家的上行頻寬。中華電信光纖通常 50-100Mbps 上行，足夠應付文字傳輸</td></tr>
+          <tr><td>Claude AI (2-8s)</td><td>最大瓶頸。Haiku 最快（~2s）、Sonnet 中等（~4s）、Opus 最慢但最聰明（~8s）。跟直接用 claude.ai 聊天一樣快</td></tr>
+          <tr><td>Concurrent Users</td><td>MCP Server 本身支援多人連線，但家用頻寬限制約 5-10 人同時使用。團隊內部使用綽綽有餘</td></tr>
+          <tr><td>Knowledge Base Size</td><td>文字搜尋對 CPU 幾乎無負擔。即使 1000+ 個 .md 檔，搜尋也在 100ms 內完成</td></tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- ── AI Chatbot Overview ── -->
@@ -1874,14 +2188,20 @@ function initDiagram(el) {
 
 function renderPage(page) {
   var nodes = [];
+  // Diagrams with data-diagram-id (existing system)
   page.querySelectorAll('.mermaid[data-diagram-id]').forEach(function(d) {
-    // Skip diagrams inside hidden version panels
     var vp = d.closest('.version-diagram');
     if (vp && !vp.classList.contains('active')) return;
-
     if (!d.querySelector('svg')) {
       initDiagram(d);
       if (d.textContent.trim()) nodes.push(d);
+    }
+  });
+  // Inline mermaid diagrams without data-diagram-id (MCP pages etc.)
+  page.querySelectorAll('.mermaid:not([data-diagram-id])').forEach(function(d) {
+    if (!d.querySelector('svg') && d.textContent.trim()) {
+      d.removeAttribute('data-processed');
+      nodes.push(d);
     }
   });
   if (nodes.length > 0) mermaid.run({ nodes: nodes });
@@ -1954,6 +2274,110 @@ function switchVersion(version) {
 // Init on load
 var activePage = document.querySelector('.page.active');
 if (activePage) renderPage(activePage);
+
+// ── Fullscreen pan & zoom ──
+var fsState = { scale: 1, panX: 0, panY: 0, dragging: false, startX: 0, startY: 0 };
+
+window.addEventListener('DOMContentLoaded', function() {
+  // Add expand buttons to all diagram cards
+  document.querySelectorAll('.diagram-card').forEach(function(card) {
+    var btn = document.createElement('div');
+    btn.className = 'diagram-card-expand';
+    btn.innerHTML = '&#x26F6;';
+    btn.title = 'Full screen';
+    btn.onclick = function(e) { e.stopPropagation(); openFullscreen(card); };
+    card.appendChild(btn);
+    card.querySelector('.diagram-card-body').style.cursor = 'pointer';
+    card.querySelector('.diagram-card-body').addEventListener('click', function() { openFullscreen(card); });
+  });
+
+  var body = document.getElementById('fullscreen-body');
+  body.addEventListener('mousedown', function(e) {
+    if (e.button !== 0) return;
+    fsState.dragging = true;
+    fsState.startX = e.clientX - fsState.panX;
+    fsState.startY = e.clientY - fsState.panY;
+    body.classList.add('dragging');
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (!fsState.dragging) return;
+    fsState.panX = e.clientX - fsState.startX;
+    fsState.panY = e.clientY - fsState.startY;
+    applyFsTransform();
+  });
+  document.addEventListener('mouseup', function() {
+    fsState.dragging = false;
+    body.classList.remove('dragging');
+  });
+  body.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    zoomFullscreen(e.deltaY > 0 ? -0.1 : 0.1);
+  }, { passive: false });
+});
+
+function applyFsTransform() {
+  var svg = document.querySelector('#fullscreen-body svg');
+  if (!svg) return;
+  svg.style.transform = 'translate(' + fsState.panX + 'px, ' + fsState.panY + 'px) scale(' + fsState.scale + ')';
+  document.getElementById('zoom-label').textContent = Math.round(fsState.scale * 100) + '%';
+}
+
+function zoomFullscreen(delta) {
+  fsState.scale = Math.max(0.3, Math.min(5, fsState.scale + delta));
+  applyFsTransform();
+}
+
+function resetFullscreen() {
+  fsState.scale = 1; fsState.panX = 0; fsState.panY = 0;
+  applyFsTransform();
+}
+
+function openFullscreen(card) {
+  var title = card.querySelector('.diagram-card-label').textContent;
+  var svgEl = card.querySelector('svg');
+  if (!svgEl) return;
+  fsState.scale = 1; fsState.panX = 0; fsState.panY = 0;
+  document.getElementById('fullscreen-title').textContent = title;
+  var body = document.getElementById('fullscreen-body');
+  var clone = svgEl.cloneNode(true);
+  clone.removeAttribute('width'); clone.removeAttribute('height');
+  clone.style.width = 'auto'; clone.style.height = 'auto';
+  clone.style.maxWidth = 'none'; clone.style.maxHeight = 'none';
+  clone.style.minWidth = '0'; clone.style.transformOrigin = 'center center';
+  body.innerHTML = '';
+  body.appendChild(clone);
+  document.getElementById('zoom-label').textContent = '100%';
+  document.getElementById('fullscreen-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeFullscreen(e) {
+  if (e && e.target !== document.getElementById('fullscreen-overlay')) return;
+  document.getElementById('fullscreen-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeFullscreen(); });
 </script>
+
+<!-- Fullscreen overlay -->
+<div class="fullscreen-overlay" id="fullscreen-overlay" onclick="closeFullscreen(event)">
+  <div class="fullscreen-content" onclick="event.stopPropagation()">
+    <div class="fullscreen-header">
+      <span class="fullscreen-title" id="fullscreen-title"></span>
+      <span class="fullscreen-hint">Scroll to zoom · Drag to pan</span>
+      <div class="fullscreen-close" onclick="closeFullscreen()">×</div>
+    </div>
+    <div class="fullscreen-body" id="fullscreen-body"></div>
+    <div class="fullscreen-zoom-controls">
+      <div class="fullscreen-zoom-btn" onclick="zoomFullscreen(-0.2)">−</div>
+      <div class="fullscreen-zoom-label" id="zoom-label">100%</div>
+      <div class="fullscreen-zoom-btn" onclick="zoomFullscreen(0.2)">+</div>
+      <div class="fullscreen-zoom-btn" onclick="resetFullscreen()" title="Reset">⟳</div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
